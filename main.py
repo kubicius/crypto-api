@@ -1,88 +1,88 @@
-from typing import Optional
 from fastapi import FastAPI
-from pydantic import BaseModel
+from key import Key
 
 app = FastAPI()
 
-@app.get("/symetric/key")
-def get_symetric_key():
+@app.get("/symmetric/key")
+def get_symmetric_key():
     """
     Returns random generated HEX key
     """
-    return {"Hello": "World"}
+    key = Key()
+    return key.generate()
 
-@app.post("/symetric/key")
-def set_symetric_key(key: str):
+@app.post("/symmetric/key")
+def set_symmetric_key(key: str):
     """
     Sets passed HEX key on server
     """
     return {"key": key}
 
-@app.post("/symetric/encode")
-def encode_symetric(string: str):
+@app.post("/symmetric/encode")
+def encode_symmetric(string: str):
     """
     Returns passed string but encoded
     """
     return {"string": string}
 
-@app.post("/symetric/decode")
-def decode_symetric(string: str):
+@app.post("/symmetric/decode")
+def decode_symmetric(string: str):
     """
     Returns passed string but decoded
     """
     return {"string": string}
 
-@app.get("/asymetric/key")
-def get_asymetric_key():
+@app.get("/asymmetric/key")
+def get_asymmetric_key():
     """
     Returns public and private HEX key and sets it on server
     """
     return {"key": "x"}
 
-@app.get("/asymetric/key/ssh")
-def get_asymetric_key_ssh():
+@app.get("/asymmetric/key/ssh")
+def get_asymmetric_key_ssh():
     """
     Returns public and private HEX key in OpenSSH format
     """
     return {"key": "x"}
 
-@app.get("/asymetric/key/ssh")
-def get_asymetric_key_ssh(key: str):
+@app.get("/asymmetric/key/ssh")
+def get_asymmetric_key_ssh(key: str):
     """
     Returns public and private HEX key in OpenSSH format
     """
     return {"key": "x"}
 
-@app.post("/asymetric/key")
-def set_asymetric_key(key: str):
+@app.post("/asymmetric/key")
+def set_asymmetric_key(key: str):
     """
     Sets public and private HEX key on server
     """
     return {"key": "x"}
 
-@app.post("/asymetric/sign")
-def sign_asymetric(key: str):
+@app.post("/asymmetric/sign")
+def sign_asymmetric(key: str):
     """
     Verifies current private key and returns signed string
     """
     return {"key": key}
 
-@app.post("/asymetric/verify")
-def verify_asymetric(key: str):
+@app.post("/asymmetric/verify")
+def verify_asymmetric(key: str):
     """
     Using current public key verifies if string was signed
     """
     return {"key": key}
 
-@app.post("/asymetric/encode")
-def encode_asymetric(key: str):
+@app.post("/asymmetric/encode")
+def encode_asymmetric(key: str):
     """
     Returns encoded string
     """
     return {"key": key}
 
-@app.post("/asymetric/decode")
-def decode_asymetric(key: str):
+@app.post("/asymmetric/decode")
+def decode_asymmetric(key: str):
     """
     Returns decoded string
     """
