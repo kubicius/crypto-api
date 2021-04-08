@@ -1,7 +1,13 @@
+
+
 class Storage:
+    """
+    Class destined to make storage operations.
+    """
+
     def writeKey(self, type, key):
-        file = open('keys/'+type+'.key', 'wb')
-        if file.write(key.encode()):
+        file = open('keys/'+type+'.key', 'w')
+        if file.write(key):
             return True
         else:
             return False

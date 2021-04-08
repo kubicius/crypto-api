@@ -1,38 +1,72 @@
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from validation import Validation
 from storage import Storage
 
 
 class Key:
+    """
+    Class meant to generate and modify keys.
+    """
     def generate(self):
-        key = Fernet.generate_key()
+        key = Fernet.generate_key().hex()
         return key
 
-    def setSymmetricKey(self, key):
+    def setKey(self, type, key):
         validation = Validation()
-        if validation.validateHex(key):
+        valid = False
+        if type == 'symmetric':
+            if validation.validateSymmetricHex(key):
+                valid = True
+        else:
+            if validation.validateAsymmetricHex(key):
+                valid = True
+        if valid:
             storage = Storage()
-            if storage.writeKey('symmetric', key):
+            if storage.writeKey(type, key):
                 return {"result": "Success!"}
             else:
                 return {"result": "Key is valid but something went wrong."}
         else:
             return {"result": "Key is invalid."}
 
-    def encodeSymmetric(self, string):
+    def setRandomAssymetricKeys(self):
         storage = Storage()
-        key = storage.readKey('symmetric')
-        if key:
-            f = Fernet(key)
-            return {"result": True, "encoded": f.encrypt(string.encode())}
+        private = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        pem = private.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        ).hex()
+        public = private.public_key()
+        publicPem = public.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).hex()
+        print(private.RSAPrivateKey)
+        if storage.writeKey('public', publicPem) and storage.writeKey('private', pem):
+            return {"result": True, "public": public, "private": private}
         else:
-            return {"result": False}
+            return {"result": "Error occured."}
 
-    def decodeSymmetric(self, string):
-        storage = Storage()
-        key = storage.readKey('symmetric')
-        if key:
-            f = Fernet(key)
-            return {"result": True, "encoded": f.decrypt(string.encode())}
-        else:
-            return {"result": False}
+    def generateRandomOpenSshKeys(self):
+        private = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        pem = private.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.OpenSSH,
+            encryption_algorithm=serialization.NoEncryption()
+        ).hex()
+        public = private.public_key()
+        publicPem = public.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).hex()
+
+        return {"public": publicPem, "private": pem}

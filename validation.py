@@ -1,7 +1,20 @@
+from cryptography.fernet import Fernet
+
+
 class Validation:
-    def validateHex(self, key):
+    """
+    Validates data.
+    """
+
+    def validateSymmetricHex(self, key):
         try:
-            int(key, 16)
+            Fernet(bytes.fromhex(key))
+            return True
+        except ValueError:
+            return False
+
+    def validateAsymmetricHex(self, key):
+        try:
             return True
         except ValueError:
             return False

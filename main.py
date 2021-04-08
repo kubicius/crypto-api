@@ -1,90 +1,88 @@
 from fastapi import FastAPI
 from key import Key
+from cipher import Cipher
 
 
 app = FastAPI()
 keyObj = Key()
+cipherObj = Cipher()
 
 @app.get("/symmetric/key")
 def get_symmetric_key():
     """
     Returns random generated HEX key
     """
-    return keyObj.generate().hex()
+    return keyObj.generate()
 
 @app.post("/symmetric/key")
 def set_symmetric_key(key: str):
     """
     Sets passed HEX key on server
     """
-    return keyObj.setSymmetricKey(key)
+    return keyObj.setKey('symmetric', key)
 
 @app.post("/symmetric/encode")
 def encode_symmetric(string: str):
     """
     Returns passed string but encoded
     """
-    return keyObj.encodeSymmetric(string)
+    return cipherObj.encodeSymmetric(string)
 
 @app.post("/symmetric/decode")
 def decode_symmetric(string: str):
     """
     Returns passed string but decoded
     """
-    return keyObj.decodeSymmetric(string)
+    return cipherObj.decodeSymmetric(string)
 
 @app.get("/asymmetric/key")
 def get_asymmetric_key():
     """
-    Returns public and private HEX key and sets it on server
+    Returns public and private random HEX key and sets it on server
     """
-    return {"key": "x"}
+    return keyObj.setRandomAssymetricKeys()
 
 @app.get("/asymmetric/key/ssh")
 def get_asymmetric_key_ssh():
     """
     Returns public and private HEX key in OpenSSH format
     """
-    return {"key": "x"}
-
-@app.get("/asymmetric/key/ssh")
-def get_asymmetric_key_ssh(key: str):
-    """
-    Returns public and private HEX key in OpenSSH format
-    """
-    return {"key": "x"}
+    return keyObj.generateRandomOpenSshKeys()
 
 @app.post("/asymmetric/key")
-def set_asymmetric_key(key: str):
+def set_asymmetric_key(public: str, private: str):
     """
     Sets public and private HEX key on server
     """
-    return {"key": "x"}
+    if keyObj.setKey('public', public) and keyObj.setKey('private', private):
+        return {"result": "Success!"}
+    else:
+        return {"result": "Keys are invalid."}
 
 @app.post("/asymmetric/sign")
-def sign_asymmetric(key: str):
+def sign_asymmetric(string: str):
     """
-    Verifies current private key and returns signed string
+    Using current public key signs and returns string
     """
-    return {"key": key}
+    return cipherObj.sign(string)
 
 @app.post("/asymmetric/verify")
-def verify_asymmetric(key: str):
+def verify_asymmetric(string: str):
     """
     Using current public key verifies if string was signed
     """
-    return {"key": key}
+    return cipherObj.verify(string)
 
 @app.post("/asymmetric/encode")
-def encode_asymmetric(key: str):
+def encode_asymmetric(string: str):
     """
     Returns encoded string
     """
-    return {"key": key}
+    return cipherObj.encodeAsymmetric(string)
 
 @app.post("/asymmetric/decode")
-def decode_asymmetric(key: str):
+def decode_asymmetric(string: str):
     """
     Returns decoded string
     """
-    return {"key": key}
+    return cipherObj.decodeAsymmetric(string)
