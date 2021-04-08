@@ -1,36 +1,37 @@
 from fastapi import FastAPI
 from key import Key
 
+
 app = FastAPI()
+keyObj = Key()
 
 @app.get("/symmetric/key")
 def get_symmetric_key():
     """
     Returns random generated HEX key
     """
-    key = Key()
-    return key.generate()
+    return keyObj.generate().hex()
 
 @app.post("/symmetric/key")
 def set_symmetric_key(key: str):
     """
     Sets passed HEX key on server
     """
-    return {"key": key}
+    return keyObj.setSymmetricKey(key)
 
 @app.post("/symmetric/encode")
 def encode_symmetric(string: str):
     """
     Returns passed string but encoded
     """
-    return {"string": string}
+    return keyObj.encodeSymmetric(string)
 
 @app.post("/symmetric/decode")
 def decode_symmetric(string: str):
     """
     Returns passed string but decoded
     """
-    return {"string": string}
+    return keyObj.decodeSymmetric(string)
 
 @app.get("/asymmetric/key")
 def get_asymmetric_key():
