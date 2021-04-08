@@ -28,30 +28,32 @@ class Cipher:
             return {"result": False}
 
     def encodeAsymmetric(self, string):
+        # TODO
         return
 
     def decodeAsymmetric(self, string):
+        # TODO
         return
 
     def sign(self, string):
+        # TODO
         storage = Storage()
         key = storage.readKey('private')
-        rsa = key
-        signature = rsa.sign(
-            string,
+        signature = key.sign(
+            string.encode(),
             padding.PSS(
-                mgf = padding.MGF1(hashes.SHA256()),
-                salt_length = padding.PSS.MAX_LENGTH
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
             ),
             hashes.SHA256()
         )
         return {"Result": signature}
 
     def verify(self, string):
+        # TODO
         storage = Storage()
         key = storage.readKey('public')
-        rsa = key
-        verification = rsa.verify(
+        verification = key.verify(
             key,
             string,
             padding.PSS(

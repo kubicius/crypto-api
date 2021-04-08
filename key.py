@@ -24,49 +24,48 @@ class Key:
                 valid = True
         if valid:
             storage = Storage()
-            if storage.writeKey(type, key):
+            if storage.writeKey(type, key.encode()):
                 return {"result": "Success!"}
             else:
                 return {"result": "Key is valid but something went wrong."}
         else:
             return {"result": "Key is invalid."}
 
-    def setRandomAssymetricKeys(self):
-        storage = Storage()
-        private = rsa.generate_private_key(
+    def generatePrivateKey(self):
+        return rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048
         )
-        pem = private.private_bytes(
+
+    def preparePrivatePem(self, private, format):
+        return private.private_bytes(
             encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            format=format,
             encryption_algorithm=serialization.NoEncryption()
-        ).hex()
-        public = private.public_key()
-        publicPem = public.public_bytes(
+        )
+
+    def preparePublicPem(self, public):
+        return public.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ).hex()
-        print(private.RSAPrivateKey)
+        )
+
+    def setRandomAssymetricKeys(self):
+        storage = Storage()
+        private = self.generatePrivateKey()
+        pem = self.preparePrivatePem(private, format=serialization.PrivateFormat.TraditionalOpenSSL)
+        public = private.public_key()
+        publicPem = self.preparePublicPem(public)
+
         if storage.writeKey('public', publicPem) and storage.writeKey('private', pem):
-            return {"result": True, "public": public, "private": private}
+            return {"result": True, "public": publicPem.hex(), "private": pem.hex()}
         else:
             return {"result": "Error occured."}
 
     def generateRandomOpenSshKeys(self):
-        private = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
-        pem = private.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.OpenSSH,
-            encryption_algorithm=serialization.NoEncryption()
-        ).hex()
+        private = self.generatePrivateKey()
+        pem = self.preparePrivatePem(private, format=serialization.PrivateFormat.OpenSSH)
         public = private.public_key()
-        publicPem = public.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ).hex()
+        publicPem = self.preparePublicPem(public)
 
-        return {"public": publicPem, "private": pem}
+        return {"public": publicPem.hex(), "private": pem.hex()}
